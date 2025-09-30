@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Schema Migrator UI</title>
+</head>
+<body>
+  <h1>Schema Migrator (GUI)</h1>
+  <button onclick="loadEntities()">Load Entities</button>
+  <div id="entities"></div>
+  <h3>CSV Upload</h3>
+  <form method="post" enctype="multipart/form-data" action="/uploadCsv">
+    <input type="file" name="file" accept=".csv"/>
+    <button type="submit">Upload CSV</button>
+  </form>
+
+  <script>
+    function loadEntities() {
+      fetch('/api/entities').then(r=>r.json()).then(data=>{
+        const container = document.getElementById('entities');
+        container.innerHTML = '';
+        data.forEach(e=>{
+          const el = document.createElement('div');
+          el.innerHTML = '<h3>'+e.name+'</h3>';
+          let table = '<table border="1"><tr><th>column</th><th>type</th><th>newCol</th><th>newType</th></tr>';
+          e.columns.forEach(c=>{
+            table += '<tr><td>'+c.name+'</td><td>'+c.type+'</td>'
+                   + '<td><input data-col="'+c.name+'" data-table="'+e.name+'" class="newcol" /></td>'
+                   + '<td><input data-col="'+c.name+'" data-table="'+e.name+'" class="newtype" placeholder="VARCHAR(100), INTEGER, NUMERIC(10,2)"/></td></tr>';
+          });
+          table += '</table>';
+          el.innerHTML += table;
+          const btn = document.createElement('button');
+          btn.textContent = 'Apply '+e.name;
+          btn.onclick = ()=>applyForEntity(e);
+          el.appendChild(btn);
+          container.appendChild(el);
+        });
+      });
+    }
+
+    function applyForEntity(entity) {
+      const inputsNewCol = document.querySelectorAll('input.newcol[data-table="'+entity.name+'"]');
+      const inputsNewType = document.querySelectorAll('input.newtype[data-table="'+entity.name+'"]');
+      const payload = [];
+      for (let i=0;i<inputsNewCol.length;i++){
+        const col = inputsNewCol[i].dataset.col;
+        const newCol = inputsNewCol[i].value.trim();
+        const newType = inputsNewType[i].value.trim();
+        if (newCol === '' && newType === '') continue;
+        payload.push({ table: entity.name.toLowerCase(), column: col, newColumn: newCol, newType: newType, primaryKey: false });
+      }
+      if (payload.length === 0) { alert('No changes'); return; }
+      fetch('/api/apply', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      }).then(r=>r.json()).then(resp=>alert(JSON.stringify(resp))).catch(e=>alert('Error:'+e));
+    }
+  </script>
+</body>
+</html>
