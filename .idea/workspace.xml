@@ -64,9 +64,9 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="103" />
-    <option name="y" value="25" />
+    <option name="y" value="235" />
     <option name="width" value="1380" />
-    <option name="height" value="875" />
+    <option name="height" value="665" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -298,7 +298,7 @@
       </state>
       <state key="FacetStructureConfigurable.UI">
         <settings>
-          <last-edited>No facets are configured</last-edited>
+          <last-edited />
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -310,7 +310,7 @@
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
         <settings>
-          <last-edited>Python 2.7 interpreter library</last-edited>
+          <last-edited />
           <splitter-proportions>
             <option name="proportions">
               <list>
