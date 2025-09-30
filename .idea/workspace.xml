@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="14ef190d-a070-4774-b620-2246ce46abb6" name="Default" comment="" />
+    <list default="true" id="14ef190d-a070-4774-b620-2246ce46abb6" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/migrator/service/EntityScannerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/migrator/service/EntityScannerService.java" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,7 +17,17 @@
     </projectState>
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="EntityScannerService.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/example/migrator/service/EntityScannerService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="456">
+              <caret line="50" column="1" selection-start-line="50" selection-start-column="1" selection-end-line="50" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -51,6 +63,13 @@
         <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
         <entry key="$PROJECT_DIR$/../../testProject/test" value="PREVIEW" />
       </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/com/example/migrator/service/EntityScannerService.java" />
+      </list>
     </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
@@ -93,6 +112,62 @@
               <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
               <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="gradle" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="migrator" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="entity-schema-migrator-multi-gradlew" type="b2602c69:ProjectViewProjectNode" />
+              <item name="entity-schema-migrator-multi-gradlew" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="migrator" type="462c0819:PsiDirectoryNode" />
+              <item name="service" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -234,15 +309,16 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1759187709519</updated>
-      <workItem from="1759187711081" duration="2819000" />
+      <workItem from="1759187711081" duration="3222000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2819000" />
+    <option name="totallyTimeSpent" value="3222000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="103" y="25" width="1380" height="875" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
@@ -250,7 +326,7 @@
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info id="Capture Tool" />
       <window_info id="Designer" />
-      <window_info active="true" anchor="bottom" id="Build" visible="true" weight="0.32955974" />
+      <window_info anchor="bottom" id="Build" visible="true" weight="0.32955974" />
       <window_info anchor="right" id="Database" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -264,7 +340,7 @@
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Terminal" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2753623" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2753623" />
       <window_info anchor="right" id="Gradle" />
       <window_info anchor="right" id="SciView" />
       <window_info anchor="right" id="Theme Preview" />
@@ -288,6 +364,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/migrator/service/EntityScannerService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="50" column="1" selection-start-line="50" selection-start-column="1" selection-end-line="50" selection-end-column="1" />
         </state>
       </provider>
     </entry>

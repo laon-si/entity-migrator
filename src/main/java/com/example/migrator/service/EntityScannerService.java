@@ -10,40 +10,42 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.*;
-
 @Service
 public class EntityScannerService {
-
-    // adjust base package as needed
-    private final String basePackage = "com.example.migrator.entity";
+    private final String basePackage = "com.example";
 
     public Map<String, Object> scanAll() {
-        Reflections reflections = new Reflections(basePackage);
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .setUrls(ClasspathHelper.forPackage(basePackage))
+                .forPackages(basePackage)
+                .setScanners(Scanners.TypesAnnotated, Scanners.SubTypes));
+
         Set<Class<?>> ents = reflections.getTypesAnnotatedWith(Entity.class);
-        Map<String, Object> out = new HashMap<>();
-        List<Map<String, Object>> entities = new ArrayList<>();
+        Map<String,Object> out = new HashMap<>();
+        List<Map<String,Object>> entities = new ArrayList<>();
         for (Class<?> cls : ents) {
-            Map<String, Object> em = new HashMap<>();
+            Map<String,Object> em = new HashMap<>();
             em.put("className", cls.getSimpleName());
             em.put("qualifiedName", cls.getName());
-            Table t = cls.getAnnotation(Table.class);
+            jakarta.persistence.Table t = cls.getAnnotation(jakarta.persistence.Table.class);
             em.put("tableName", t != null && !t.name().isEmpty() ? t.name() : cls.getSimpleName().toLowerCase());
-            List<Map<String, Object>> fields = new ArrayList<>();
-            for (Field f : cls.getDeclaredFields()) {
-                Map<String, Object> fm = new HashMap<>();
+
+            List<Map<String,Object>> fields = new ArrayList<>();
+            for (java.lang.reflect.Field f : cls.getDeclaredFields()) {
+                Map<String,Object> fm = new HashMap<>();
                 fm.put("fieldName", f.getName());
                 fm.put("type", f.getType().getSimpleName());
-                Column c = f.getAnnotation(Column.class);
+                jakarta.persistence.Column c = f.getAnnotation(jakarta.persistence.Column.class);
                 fm.put("columnName", c != null && !c.name().isEmpty() ? c.name() : f.getName());
-                fm.put("primaryKey", f.getAnnotation(Id.class) != null);
+                fm.put("primaryKey", f.getAnnotation(jakarta.persistence.Id.class) != null);
                 fields.add(fm);
             }
             em.put("fields", fields);
             entities.add(em);
         }
-        out.put("projectRoot", System.getProperty("user.dir"));
         out.put("package", basePackage);
         out.put("entities", entities);
         out.put("scannedAt", new Date().toString());
         return out;
     }
+}
