@@ -4,51 +4,44 @@ import jakarta.persistence.Entity;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.ClasspathHelper;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.nio.file.*;
 import java.util.*;
 
 @Service
 public class EntityScannerService {
 
-    public Map<String, Object> scanAll() throws Exception {
-        // 1. 외부 디렉토리 설정 (JVM 옵션 -Dscan.source.root 로 넘겨줌)
+    public Map<String, Object> scanAll() throws IOException {
         String sourceRoot = System.getProperty("scan.source.root");
         if (sourceRoot == null) {
             throw new IllegalStateException("JVM 옵션 -Dscan.source.root 가 필요합니다.");
         }
 
-        // 2. 클래스패스 URL 수집
+        // 1. URL 모으기
         List<URL> urls = new ArrayList<>();
-        urls.addAll(ClasspathHelper.forJavaClassPath()); // 기본 JAR 내부
-
-        File rootDir = new File(sourceRoot);
-        if (rootDir.exists()) {
-            // /build/classes/java/main 같은 하위 디렉토리를 전부 classpath에 올림
-            rootDir.walk()
-                    .filter(f -> f.getName().equals("classes"))
-                    .forEach(f -> {
+        try (var paths = Files.walk(Paths.get(sourceRoot))) {
+            paths.filter(Files::isDirectory)
+                    .filter(p -> p.toString().endsWith("classes/java/main"))
+                    .forEach(p -> {
                         try {
-                            urls.add(f.toURI().toURL());
+                            urls.add(p.toUri().toURL());
                         } catch (Exception ignored) {}
                     });
         }
 
-        // 3. Reflections 초기화
+        // 2. Reflections 구성
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(urls)
                 .setScanners(Scanners.TypesAnnotated, Scanners.SubTypes));
 
         Set<Class<?>> ents = new HashSet<>();
-        ents.addAll(reflections.getTypesAnnotatedWith(Entity.class));
-        // javax 지원도 추가
+        try { ents.addAll(reflections.getTypesAnnotatedWith(Entity.class)); } catch (Throwable ignore) {}
         try { ents.addAll(reflections.getTypesAnnotatedWith(javax.persistence.Entity.class)); } catch (Throwable ignore) {}
 
-        // 4. 결과 JSON-like 구조 만들기
+        // 3. JSON 형태로 결과
         Map<String,Object> out = new HashMap<>();
         List<Map<String,Object>> entities = new ArrayList<>();
 
@@ -57,29 +50,38 @@ public class EntityScannerService {
             em.put("className", cls.getSimpleName());
             em.put("qualifiedName", cls.getName());
 
-            jakarta.persistence.Table t = cls.getAnnotation(jakarta.persistence.Table.class);
-            if (t == null) {
-                javax.persistence.Table t2 = cls.getAnnotation(javax.persistence.Table.class);
-                em.put("tableName", (t2 != null && !t2.name().isEmpty()) ? t2.name() : cls.getSimpleName().toLowerCase());
-            } else {
-                em.put("tableName", !t.name().isEmpty() ? t.name() : cls.getSimpleName().toLowerCase());
+            // 테이블명
+            String tableName = cls.getSimpleName().toLowerCase();
+            var tJakarta = cls.getAnnotation(jakarta.persistence.Table.class);
+            var tJavax = cls.getAnnotation(javax.persistence.Table.class);
+            if (tJakarta != null && !tJakarta.name().isEmpty()) {
+                tableName = tJakarta.name();
+            } else if (tJavax != null && !tJavax.name().isEmpty()) {
+                tableName = tJavax.name();
             }
+            em.put("tableName", tableName);
 
+            // 필드들
             List<Map<String,Object>> fields = new ArrayList<>();
             for (var f : cls.getDeclaredFields()) {
                 Map<String,Object> fm = new HashMap<>();
                 fm.put("fieldName", f.getName());
                 fm.put("type", f.getType().getSimpleName());
 
-                jakarta.persistence.Column c = f.getAnnotation(jakarta.persistence.Column.class);
-                javax.persistence.Column c2 = f.getAnnotation(javax.persistence.Column.class);
-                String colName = (c != null && !c.name().isEmpty()) ? c.name()
-                        : (c2 != null && !c2.name().isEmpty()) ? c2.name()
-                        : f.getName();
-                fm.put("columnName", colName);
+                String columnName = f.getName();
+                var cJakarta = f.getAnnotation(jakarta.persistence.Column.class);
+                var cJavax = f.getAnnotation(javax.persistence.Column.class);
+                if (cJakarta != null && !cJakarta.name().isEmpty()) {
+                    columnName = cJakarta.name();
+                } else if (cJavax != null && !cJavax.name().isEmpty()) {
+                    columnName = cJavax.name();
+                }
+                fm.put("columnName", columnName);
 
-                fm.put("primaryKey", f.isAnnotationPresent(jakarta.persistence.Id.class)
-                        || f.isAnnotationPresent(javax.persistence.Id.class));
+                boolean isPk = f.isAnnotationPresent(jakarta.persistence.Id.class)
+                        || f.isAnnotationPresent(javax.persistence.Id.class);
+                fm.put("primaryKey", isPk);
+
                 fields.add(fm);
             }
             em.put("fields", fields);
