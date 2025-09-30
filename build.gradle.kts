@@ -1,3 +1,4 @@
+
 plugins {
     id("org.springframework.boot") version "3.2.8"
     id("io.spring.dependency-management") version "1.1.3"
@@ -18,7 +19,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("com.github.javaparser:javaparser-core:3.25.4")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

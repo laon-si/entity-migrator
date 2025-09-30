@@ -1,1 +1,1 @@
-rootProject.name = "entity-schema-migrator-complete"
+rootProject.name = "entity-schema-migrator-gui"

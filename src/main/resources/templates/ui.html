@@ -1,62 +1,98 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8"/>
-  <title>Schema Migrator UI</title>
+  <title>Schema GUI</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 16px; }
+    .entity { border: 1px solid #ddd; margin: 8px 0; padding: 8px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px; }
+    input[type=text], select { width: 100%; }
+  </style>
 </head>
 <body>
-  <h1>Schema Migrator (GUI)</h1>
-  <button onclick="loadEntities()">Load Entities</button>
+  <h1>Entity Schema Migrator - GUI</h1>
+  <button onclick="load()">Load Entities</button>
   <div id="entities"></div>
-  <h3>CSV Upload</h3>
-  <form method="post" enctype="multipart/form-data" action="/uploadCsv">
-    <input type="file" name="file" accept=".csv"/>
-    <button type="submit">Upload CSV</button>
-  </form>
+  <button onclick="save()">Save All Changes</button>
+  <pre id="log"></pre>
 
-  <script>
-    function loadEntities() {
-      fetch('/api/entities').then(r=>r.json()).then(data=>{
-        const container = document.getElementById('entities');
-        container.innerHTML = '';
-        data.forEach(e=>{
-          const el = document.createElement('div');
-          el.innerHTML = '<h3>'+e.name+'</h3>';
-          let table = '<table border="1"><tr><th>column</th><th>type</th><th>newCol</th><th>newType</th></tr>';
-          e.columns.forEach(c=>{
-            table += '<tr><td>'+c.name+'</td><td>'+c.type+'</td>'
-                   + '<td><input data-col="'+c.name+'" data-table="'+e.name+'" class="newcol" /></td>'
-                   + '<td><input data-col="'+c.name+'" data-table="'+e.name+'" class="newtype" placeholder="VARCHAR(100), INTEGER, NUMERIC(10,2)"/></td></tr>';
-          });
-          table += '</table>';
-          el.innerHTML += table;
-          const btn = document.createElement('button');
-          btn.textContent = 'Apply '+e.name;
-          btn.onclick = ()=>applyForEntity(e);
-          el.appendChild(btn);
-          container.appendChild(el);
-        });
-      });
-    }
+<script>
+let entities = [];
 
-    function applyForEntity(entity) {
-      const inputsNewCol = document.querySelectorAll('input.newcol[data-table="'+entity.name+'"]');
-      const inputsNewType = document.querySelectorAll('input.newtype[data-table="'+entity.name+'"]');
-      const payload = [];
-      for (let i=0;i<inputsNewCol.length;i++){
-        const col = inputsNewCol[i].dataset.col;
-        const newCol = inputsNewCol[i].value.trim();
-        const newType = inputsNewType[i].value.trim();
-        if (newCol === '' && newType === '') continue;
-        payload.push({ table: entity.name.toLowerCase(), column: col, newColumn: newCol, newType: newType, primaryKey: false });
-      }
-      if (payload.length === 0) { alert('No changes'); return; }
-      fetch('/api/apply', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      }).then(r=>r.json()).then(resp=>alert(JSON.stringify(resp))).catch(e=>alert('Error:'+e));
+async function load() {
+  const res = await fetch('/api/scan/entities');
+  const data = await res.json();
+  entities = data.entities || [];
+  render();
+}
+
+function render() {
+  const container = document.getElementById('entities');
+  container.innerHTML = '';
+  entities.forEach(ent => {
+    const div = document.createElement('div');
+    div.className = 'entity';
+    const title = document.createElement('h2');
+    title.textContent = ent.className + ' (table: ' + ent.tableName + ')';
+    div.appendChild(title);
+    const tbl = document.createElement('table');
+    const header = document.createElement('tr');
+    header.innerHTML = '<th>Field</th><th>Column</th><th>New Column</th><th>Type</th><th>New Type</th><th>PK</th>';
+    tbl.appendChild(header);
+    ent.fields.forEach(f => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + f.fieldName + '</td>' 
+        + '<td>' + f.columnName + '</td>'
+        + '<td><input data-field="'+f.fieldName+'" data-class="'+ent.qualifiedName+'" data-table="'+ent.tableName+'" class="newcol" /></td>'
+        + '<td>' + f.type + '</td>'
+        + '<td><input data-field="'+f.fieldName+'" data-class="'+ent.qualifiedName+'" data-table="'+ent.tableName+'" class="newtype" placeholder="VARCHAR(100), INTEGER" /></td>'
+        + '<td>' + (f.primaryKey ? 'Y' : '') + '</td>';
+      tbl.appendChild(tr);
+    });
+    div.appendChild(tbl);
+    container.appendChild(div);
+  });
+}
+
+async function save() {
+  const payload = { changes: [] };
+  // gather per field both newcol and newtype inputs - ensure we don't duplicate entries
+  const rows = document.querySelectorAll('input.newcol, input.newtype');
+  const added = {};
+  rows.forEach(inp => {
+    const field = inp.dataset.field;
+    const qn = inp.dataset.class;
+    const tbl = inp.dataset.table;
+    const key = qn + '|' + field;
+    if (!added[key]) {
+      added[key] = { fieldName: field, qualifiedName: qn, table: tbl, column: '', newColumn: '', newType: '' };
+      // find original column name and pk/type via entities array
+      const ent = entities.find(e => e.qualifiedName === qn);
+      const fld = ent.fields.find(f => f.fieldName === field);
+      added[key].column = fld.columnName;
+      added[key].primaryKey = fld.primaryKey;
     }
-  </script>
+    if (inp.classList.contains('newcol')) added[key].newColumn = inp.value.trim();
+    if (inp.classList.contains('newtype')) added[key].newType = inp.value.trim();
+  });
+  for (const k in added) {
+    const v = added[k];
+    if (v.newColumn || v.newType) payload.changes.push({
+      table: v.table, column: v.column, newColumn: v.newColumn, newType: v.newType, primaryKey: v.primaryKey,
+      qualifiedName: v.qualifiedName, fieldName: v.fieldName
+    });
+  }
+
+  if (payload.changes.length === 0) { alert('No changes'); return; }
+  document.getElementById('log').textContent = 'Applying...';
+  const res = await fetch('/api/apply', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const out = await res.json();
+  document.getElementById('log').textContent = JSON.stringify(out, null, 2);
+  await load();
+}
+</script>
 </body>
 </html>

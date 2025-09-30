@@ -1,3 +1,4 @@
+
 package com.example.migrator.dto;
 
 public class ColumnChange {

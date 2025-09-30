@@ -1,3 +1,4 @@
+
 package com.example.migrator;
 
 import org.springframework.boot.CommandLineRunner;
@@ -17,7 +18,7 @@ public class Application {
     }
 
     @Bean
-    CommandLineRunner loadDefaultSchema(DataSource ds) {
+    CommandLineRunner loadSchema(DataSource ds) {
         return args -> {
             try (Connection c = ds.getConnection()) {
                 ScriptUtils.executeSqlScript(c, new ClassPathResource("schema-h2.sql"));

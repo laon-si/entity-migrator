@@ -234,12 +234,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1759187709519</updated>
-      <workItem from="1759187711081" duration="2514000" />
+      <workItem from="1759187711081" duration="2819000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2514000" />
+    <option name="totallyTimeSpent" value="2819000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="103" y="25" width="1380" height="875" extended-state="0" />
@@ -250,7 +250,7 @@
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info id="Capture Tool" />
       <window_info id="Designer" />
-      <window_info anchor="bottom" id="Build" visible="true" weight="0.32955974" />
+      <window_info active="true" anchor="bottom" id="Build" visible="true" weight="0.32955974" />
       <window_info anchor="right" id="Database" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -264,7 +264,7 @@
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Terminal" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2753623" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2753623" />
       <window_info anchor="right" id="Gradle" />
       <window_info anchor="right" id="SciView" />
       <window_info anchor="right" id="Theme Preview" />

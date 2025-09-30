@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS customer (
   id BIGINT PRIMARY KEY,
   username VARCHAR(100),
