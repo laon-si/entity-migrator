@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,86 +12,99 @@
   </style>
 </head>
 <body>
-  <h1>Entity Schema Migrator - GUI</h1>
-  <button onclick="load()">Load Entities</button>
-  <div id="entities"></div>
-  <button onclick="save()">Save All Changes</button>
-  <pre id="log"></pre>
+<h1>Entity Schema Migrator - GUI</h1>
+<button onclick="load()">Load Entities</button>
+<div id="entities"></div>
+<button onclick="saveAll()">Save All Changes</button>
+<pre id="log"></pre>
 
 <script>
-let entities = [];
+    let entities = [];
 
-async function load() {
-  const res = await fetch('/api/scan/entities');
-  const data = await res.json();
-  entities = data.entities || [];
-  render();
-}
-
-function render() {
-  const container = document.getElementById('entities');
-  container.innerHTML = '';
-  entities.forEach(ent => {
-    const div = document.createElement('div');
-    div.className = 'entity';
-    const title = document.createElement('h2');
-    title.textContent = ent.className + ' (table: ' + ent.tableName + ')';
-    div.appendChild(title);
-    const tbl = document.createElement('table');
-    const header = document.createElement('tr');
-    header.innerHTML = '<th>Field</th><th>Column</th><th>New Column</th><th>Type</th><th>New Type</th><th>PK</th>';
-    tbl.appendChild(header);
-    ent.fields.forEach(f => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + f.fieldName + '</td>' 
-        + '<td>' + f.columnName + '</td>'
-        + '<td><input data-field="'+f.fieldName+'" data-class="'+ent.qualifiedName+'" data-table="'+ent.tableName+'" class="newcol" /></td>'
-        + '<td>' + f.type + '</td>'
-        + '<td><input data-field="'+f.fieldName+'" data-class="'+ent.qualifiedName+'" data-table="'+ent.tableName+'" class="newtype" placeholder="VARCHAR(100), INTEGER" /></td>'
-        + '<td>' + (f.primaryKey ? 'Y' : '') + '</td>';
-      tbl.appendChild(tr);
-    });
-    div.appendChild(tbl);
-    container.appendChild(div);
-  });
-}
-
-async function save() {
-  const payload = { changes: [] };
-  // gather per field both newcol and newtype inputs - ensure we don't duplicate entries
-  const rows = document.querySelectorAll('input.newcol, input.newtype');
-  const added = {};
-  rows.forEach(inp => {
-    const field = inp.dataset.field;
-    const qn = inp.dataset.class;
-    const tbl = inp.dataset.table;
-    const key = qn + '|' + field;
-    if (!added[key]) {
-      added[key] = { fieldName: field, qualifiedName: qn, table: tbl, column: '', newColumn: '', newType: '' };
-      // find original column name and pk/type via entities array
-      const ent = entities.find(e => e.qualifiedName === qn);
-      const fld = ent.fields.find(f => f.fieldName === field);
-      added[key].column = fld.columnName;
-      added[key].primaryKey = fld.primaryKey;
+    async function load() {
+        const res = await fetch('/api/scan/entities');
+        const data = await res.json();
+        entities = data.entities || [];
+        render();
     }
-    if (inp.classList.contains('newcol')) added[key].newColumn = inp.value.trim();
-    if (inp.classList.contains('newtype')) added[key].newType = inp.value.trim();
-  });
-  for (const k in added) {
-    const v = added[k];
-    if (v.newColumn || v.newType) payload.changes.push({
-      table: v.table, column: v.column, newColumn: v.newColumn, newType: v.newType, primaryKey: v.primaryKey,
-      qualifiedName: v.qualifiedName, fieldName: v.fieldName
-    });
-  }
 
-  if (payload.changes.length === 0) { alert('No changes'); return; }
-  document.getElementById('log').textContent = 'Applying...';
-  const res = await fetch('/api/apply', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const out = await res.json();
-  document.getElementById('log').textContent = JSON.stringify(out, null, 2);
-  await load();
-}
+    function render() {
+        const container = document.getElementById('entities');
+        container.innerHTML = '';
+        entities.forEach(ent => {
+            const div = document.createElement('div');
+        div.className = 'entity';
+
+        // 제목
+        const title = document.createElement('h2');
+        title.textContent = ent.className + ' (table: ' + ent.tableName + ')';
+        div.appendChild(title);
+
+        // 새 테이블명 입력
+        div.innerHTML += '<label>새 테이블명: </label>'
+            + '<input type="text" id="'+ent.qualifiedName+'_table"/><br/><br/>';
+
+        // 필드 테이블
+        const tbl = document.createElement('table');
+        const header = document.createElement('tr');
+        header.innerHTML = '<th>Field</th><th>Column</th><th>New Column</th>'
+            + '<th>Type</th><th>New Type</th><th>PK</th><th>New PK</th>';
+        tbl.appendChild(header);
+
+        ent.fields.forEach(f => {
+            const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + f.fieldName + '</td>'
+            + '<td>' + f.columnName + '</td>'
+            + '<td><input id="'+ent.qualifiedName+'_'+f.fieldName+'_col"/></td>'
+            + '<td>' + f.type + '</td>'
+            + '<td><input id="'+ent.qualifiedName+'_'+f.fieldName+'_type"/></td>'
+            + '<td>' + (f.primaryKey ? 'Y' : '') + '</td>'
+            + '<td><input type="checkbox" id="'+ent.qualifiedName+'_'+f.fieldName+'_pk"/></td>';
+        tbl.appendChild(tr);
+    });
+        div.appendChild(tbl);
+
+        // 개별 엔티티 저장 버튼
+        div.innerHTML += '<button onclick="saveEntity(\''+ent.qualifiedName+'\')">저장</button>';
+
+        container.appendChild(div);
+    });
+    }
+
+    // 개별 엔티티 저장
+    async function saveEntity(qualifiedName) {
+        const ent = entities.find(e => e.qualifiedName === qualifiedName);
+        let newTableName = document.getElementById(qualifiedName+'_table').value;
+
+        let fields = [];
+        ent.fields.forEach(f => {
+            fields.push({
+            fieldName: f.fieldName,
+            newColumnName: document.getElementById(qualifiedName+'_'+f.fieldName+'_col').value,
+            newType: document.getElementById(qualifiedName+'_'+f.fieldName+'_type').value,
+            primaryKey: document.getElementById(qualifiedName+'_'+f.fieldName+'_pk').checked
+        });
+    });
+
+        let payload = {
+            qualifiedName: qualifiedName,
+            newTableName: newTableName,
+            fields: fields
+        };
+
+        const res = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        alert(text);
+    }
+
+    // 전체 저장 (엑셀 업로드 로직 대신 확장용)
+    async function saveAll() {
+        document.getElementById('log').textContent = '전체 저장은 아직 개별 저장 방식만 지원합니다.';
+    }
 </script>
 </body>
 </html>

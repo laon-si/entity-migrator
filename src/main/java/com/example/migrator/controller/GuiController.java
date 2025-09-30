@@ -40,20 +40,20 @@ public class GuiController {
     @PostMapping("/api/apply")
     @ResponseBody
     public Map<String, Object> apply(@RequestBody Map<String, Object> body) {
-        List<Map<String,Object>> changes = (List<Map<String,Object>>) body.get("changes");
+        List<Map<String, Object>> changes = (List<Map<String, Object>>) body.get("changes");
         List<ColumnChange> dtoList = new ArrayList<>();
-        Map<String, List<Map<String,Object>>> byTable = new HashMap<>();
-        for (Map<String,Object> m : changes) {
-            String table = (String) m.get("table"); 
-            String column = (String) m.get("column"); 
-            String newColumn = (String) m.get("newColumn"); 
-            String newType = (String) m.get("newType"); 
+        Map<String, List<Map<String, Object>>> byTable = new HashMap<>();
+        for (Map<String, Object> m : changes) {
+            String table = (String) m.get("table");
+            String column = (String) m.get("column");
+            String newColumn = (String) m.get("newColumn");
+            String newType = (String) m.get("newType");
             Boolean pk = m.get("primaryKey") != null ? (Boolean) m.get("primaryKey") : false;
-            String qualified = (String) m.get("qualifiedName"); 
-            String fieldName = (String) m.get("fieldName"); 
+            String qualified = (String) m.get("qualifiedName");
+            String fieldName = (String) m.get("fieldName");
             ColumnChange cc = new ColumnChange(table, column, newColumn, newType, pk);
             dtoList.add(cc);
-            byTable.computeIfAbsent(table, k-> new ArrayList<>()).add(m);
+            byTable.computeIfAbsent(table, k -> new ArrayList<>()).add(m);
         }
 
         Map<String, String> sqlResult = schemaService.applyChanges(dtoList);
@@ -67,14 +67,16 @@ public class GuiController {
                 applyResult.put(table, Map.of("status", status, "message", "SQL failed, source not modified"));
                 continue;
             }
-            List<Map<String,Object>> tableChanges = byTable.get(table);
+            List<Map<String, Object>> tableChanges = byTable.get(table);
             if (tableChanges == null) continue;
             String qualifiedName = null;
             String newTableName = null;
             List<FieldChange> fcs = new ArrayList<>();
-            for (Map<String,Object> m : tableChanges) {
-                if (qualifiedName == null && m.get("qualifiedName") != null) qualifiedName = (String) m.get("qualifiedName");
-                if (newTableName == null && m.get("newTableName") != null) newTableName = (String) m.get("newTableName");
+            for (Map<String, Object> m : tableChanges) {
+                if (qualifiedName == null && m.get("qualifiedName") != null)
+                    qualifiedName = (String) m.get("qualifiedName");
+                if (newTableName == null && m.get("newTableName") != null)
+                    newTableName = (String) m.get("newTableName");
                 String fieldName = (String) m.get("fieldName");
                 String newColumn = (String) m.get("newColumn");
                 String newType = (String) m.get("newType");
@@ -97,3 +99,24 @@ public class GuiController {
         out.put("sourceResult", applyResult);
         return out;
     }
+
+
+    @GetMapping("/ui")
+    public String uiPage(Model model,
+                         @RequestParam(value = "basePrefix", required = false) String basePrefix) throws IOException {
+        model.addAttribute("entities", entityScannerService.scanAll(basePrefix));
+        return "ui";
+    }
+
+    @PostMapping("/save")
+    @ResponseBody
+    public String saveEntity(@RequestBody Map<String, Object> entityMap) {
+        try {
+            entityModifierService.updateEntity(entityMap);
+            return "✅ 엔티티 수정 완료!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "❌ 수정 실패: " + e.getMessage();
+        }
+    }
+}
